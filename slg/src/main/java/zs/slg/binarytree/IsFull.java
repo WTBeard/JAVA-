@@ -1,5 +1,8 @@
 package zs.slg.binarytree;
 
+/**
+ * 判断二叉树是不是满二叉树
+ */
 public class IsFull {
 
     public static boolean isFull(Node head) {
