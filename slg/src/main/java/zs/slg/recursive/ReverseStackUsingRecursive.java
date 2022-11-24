@@ -17,10 +17,10 @@ public class ReverseStackUsingRecursive {
     public static int process(Stack<Integer> stack){
         Integer temp = stack.pop();
         if (stack.isEmpty()){
-            return temp;
+            return temp;  // 1
         }
         int res = process(stack);
-        stack.push(temp); // 把每一步不是最后的 在压入
+        stack.push(temp);
         return res;
     }
 
