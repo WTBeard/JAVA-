@@ -2,6 +2,7 @@ package zs.slg.windows;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -162,28 +163,43 @@ public class MinCoinsOnePaper {
     }
 
     public static int dp4(int[] arr, int aim) {
-        if (arr == null || arr.length == 0) {
+        if (aim == 0) {
             return 0;
         }
         Info info = getInfo(arr);
         int[] coin = info.coin;
-        int[] zhang = info.zhangs;
+        int[] zhangs = info.zhangs;
         int n = coin.length;
+        LinkedList<Integer> queue = new LinkedList<>();
+
         int[][] dp = new int[n + 1][aim + 1];
         for (int rest = 1; rest < aim + 1; rest++) {
             dp[n][rest] = Integer.MAX_VALUE;
         }
         for (int i = n - 1; i >= 0; i--) {
-            for (int rest = 0; rest < aim + 1; rest++) {
-                dp[i][rest] = dp[i + 1][rest];
-
-
-
-                for (int z = 1; z <= zhang[i] && z * coin[i] <= rest; z++) {
-                    int process = dp[i + 1][rest - z * coin[i]];
-                    if (process != Integer.MAX_VALUE) {
-                        dp[i][rest] = Math.min(dp[i][rest], process + z);
+            // 组
+            for (int g = 0; g < Math.min(aim + 1, coin[i]); g++) {
+                queue.clear();
+                // 加入窗口
+                queue.add(g);
+                // 每组第一个
+                dp[i][g] = dp[i + 1][g];
+                for (int r = g + coin[i]; r < aim + 1; r += coin[i]) {
+                    // dp[i][queue.peekLast()] == dp[i+1][queue.peekLast()] 所以用 dp[i+1][queue.peekLast()] i+1 位置是有值的
+                    // 取张数范围内的最小值
+                    // dp[i][r] == dp[i+1][r]
+                    // (r - queue.peekLast())/coin[i] 补偿张数
+                    while (!queue.isEmpty() &&
+                            (dp[i+1][queue.peekLast()] == Integer.MAX_VALUE || dp[i+1][queue.peekLast()] + (r - queue.peekLast())/coin[i] >= dp[i+1][r])){
+                        queue.pollLast();
                     }
+                    queue.addLast(r);
+                    // 如果超出张数的正好是最小值
+                    if (queue.peekFirst() == r - coin[i]*(zhangs[i] + 1)){
+                        queue.pollFirst();
+                    }
+                    //  (r - queue.peekFirst())/coin[i] 补偿张数
+                    dp[i][r] = dp[i+1][queue.peekFirst()] + (r - queue.peekFirst())/coin[i];
                 }
             }
         }
